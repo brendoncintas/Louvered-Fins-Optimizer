@@ -36,7 +36,7 @@ T = input(TP);
 outputP = "Print outputs? Y/N [Y]\n";
 output = input(outputP, "s");
 if isempty(output)
-    output = 'Y';
+    output = 'Y'
 end
 % Derived values
 b1 = b*numOmega; % Louver section width
