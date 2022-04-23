@@ -36,14 +36,11 @@ if customValues == 'Y'
     numBeta2P = "What is the parametric Beta2 value (b2/b)?\n";
     numBeta2 = input (numBeta2P);
 
-    h1P = "What is the convection coefficient (h1)?\n";
-    h1 = input(h1P);
     bP = "What is the element width (b)?\n";
     b = input(bP);
     cP = "What is the element height (c)?\n";
     c = input(cP);
-    TP = "What is the constant temperature boundary (°C)?\n";
-    T = input(TP);
+
 end
 if customValues == 'N'
     numBiot = 1e-5;
@@ -71,11 +68,10 @@ b1 = b*numOmega; % Louver section width
 t = c/numAlpha; % Element thickness
 c1 = c*numBeta1; % Louver element height
 b2 = numBeta2*b;
-k = h1*t/numBiot;
+
 
 %%
 
-%Sector 4 Calculation
 for i = 1:length(numBeta2)
     % The thermal resistance model can be found from an analysis of the network
     % of resistance linking the sectors to one another, and then through the
@@ -84,8 +80,8 @@ for i = 1:length(numBeta2)
 
     if numOmega < numBeta2(i)
 
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
-        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i));
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),sector4Eff(i));
         sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
         [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
         
@@ -95,8 +91,8 @@ for i = 1:length(numBeta2)
 
     if numOmega > numBeta2(i)
 
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
-        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i));
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),sector4Eff(i));
         sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
         [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
 
