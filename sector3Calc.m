@@ -46,6 +46,9 @@ if numOmega < numBeta2
 
     mL = (numBeta2-numOmega)*numGamma*numAlpha*sqrt(numBiot*(hEquiv/h1));
     ht = h1*((sector4Eff*(1-numBeta2)*numGamma*numAlpha)/(1-numBeta1));
-    sector3Res = inv((1-numBeta1)*numAlpha*sqrt(numBiot*(hEquiv/h1))*(tanh(mL)*(csch(mL)^2)/((h1/ht)*sqrt((hEquiv/h1)*(1/numBiot))+tanh(mL)))); 
+    A = (1-numBeta1)*numAlpha*sqrt(numBiot*(hEquiv/h1))*tanh(mL);
+    B = csch(mL)*csch(mL);
+    C = (h1/ht) * sqrt((hEquiv/h1)*(1/numBiot))+tanh(mL);
+    sector3Res = inv(A + (B/C)); 
 
 end

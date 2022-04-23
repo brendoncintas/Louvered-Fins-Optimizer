@@ -59,7 +59,7 @@ if customValues == 'N'
     numBeta1 = 0.75;
     %numBeta1 = [0.5:0.01:0.95];
     %numBeta2 = 0.25;
-    numBeta2 = [0.25:0.1:0.75];
+    numBeta2 = [0.25:0.01:0.75];
     b = 10;
     c = 5;
     h1 = 100;
@@ -77,12 +77,6 @@ k = h1*t/numBiot;
 
 %Sector 4 Calculation
 for i = 1:length(numBeta2)
-
-    [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
-    [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
-    sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
-    [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
-
     % The thermal resistance model can be found from an analysis of the network
     % of resistance linking the sectors to one another, and then through the
     % sink and the source. This is dependent on whether there are small bonds
@@ -98,6 +92,7 @@ for i = 1:length(numBeta2)
         J = inv(sector1SRes(i))+inv(sector13Res(i)+sector3Res(i))+inv(sector1BRes(i)+sector2Res(i));
         totalRes(i) = sector1BRes(i) + inv(J);
     end
+
     if numOmega > numBeta2(i)
 
         [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
@@ -108,11 +103,18 @@ for i = 1:length(numBeta2)
         I = zeros(1,5);
         I(1) = sector1BRes(i);
         I(2) = sector3BRes(i);
-        I(3) = sector3SRes(i) + sector13Res(i);
-        I(4) = 1./((1./sector3SRes(i))+(1./(sector3BRes(i)+sector3ARes(i)))+(1./(sector31Res(i)+sector4Res(i))));
-        I(5) = 1./((1./sector1SRes(i)))+(1./(sector2Res(i)+sector1BRes(i)));
+        I(3) = sector31Res(i) + sector13Res(i);
+        I(4) = inv(inv(sector3SRes(i))+(inv(sector3BRes(i)+sector3ARes(i)))+(inv(sector31Res(i)+sector4Res(i))));
+        I(5) = inv(inv(sector1SRes(i))+(inv(sector2Res(i)+sector1BRes(i))));
 
-        totalRes(i) = ((I(1)+I(2))*(I(3)+I(4)+I(5))+ I(3)*(I(4)+I(5)))/(I(1)*I(4)*(I(3)*I(5))+I(1)*I(2)*(I(3)+I(4)+I(5))+I(2)*I(5)*(I(3)+I(4))+I(3)*I(4)*I(5));
+        A = (I(1)+I(2))*(I(3)+I(4)+I(5));
+        B = I(3)*(I(4)+I(5));
+        C = (I(1)*I(4))*(I(3)+I(5));
+        D = (I(1)*I(2))*(I(3)+I(4)+I(5));
+        E = (I(2)*I(5))*(I(3)+I(4));
+        F = I(3)*I(4)*I(5);
+
+        totalRes(i) = (A + B) / (C + D + E + F);
     end
 end
 if output == 'Y'
