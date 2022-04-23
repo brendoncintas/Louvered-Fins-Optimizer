@@ -1,4 +1,4 @@
-function sector1Res = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1)
+function [sector1BRes, sector1SRes, sector13Res] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1)
 
 % Sector 1 is the unlouvered fin above the bond. This sector is assumed to
 % be an element of uniform temperature acting at its sentroid. Heat is
@@ -19,5 +19,4 @@ sector13Res = (numGamma*numOmega)/(2*numBiot);
 
 % The total sector resistance:
 
-sector1Res = [sector1BRes, sector1SRes, sector13Res];
 end

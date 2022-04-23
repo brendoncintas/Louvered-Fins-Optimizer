@@ -56,8 +56,8 @@ if customValues == 'N'
     % numAlpha = [200, 140, 80];
     numGamma = 1.5;
     % numGamma = [1.5, 1.0, 0.5];
-    %numBeta1 = 0.5;
-    numBeta1 = [0.5:0.1:0.95];
+    numBeta1 = 0.75;
+    %numBeta1 = [0.5:0.01:0.95];
     %numBeta2 = 0.25;
     numBeta2 = [0.25:0.1:0.75];
     b = 10;
@@ -76,8 +76,12 @@ k = h1*t/numBiot;
 %%
 
 %Sector 4 Calculation
-for i = 1:length(numBeta1)
+for i = 1:length(numBeta2)
 
+    [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
+    [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
+    sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
+    [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
 
     % The thermal resistance model can be found from an analysis of the network
     % of resistance linking the sectors to one another, and then through the
@@ -85,31 +89,28 @@ for i = 1:length(numBeta1)
     % (Omega < B2) or large bonds (Omega > B2)
 
     if numOmega < numBeta2(i)
+
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
+        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
+        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
         
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2(i),h1);
-        sector3Res(i) = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2(i),h1,sector4Eff(i));
-        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i));
-        sector1Res{i} = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i));
-
-        sector1ResM(i)= cell2mat(sector1Res(i));
-
-        totalRes(i) = sector1ResM(i,1) + 1./((1./(1./sector1ResM(i,2)))+(1./(sector1Res(i,3)+sector3Res(i)))+(1./(sector1Res(i,1)+sector2Res(i))));
+        J = inv(sector1SRes(i))+inv(sector13Res(i)+sector3Res(i))+inv(sector1BRes(i)+sector2Res(i));
+        totalRes(i) = sector1BRes(i) + inv(J);
     end
     if numOmega > numBeta2(i)
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2(i),h1);
-        sector3Res{i} = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2(i),h1,sector4Eff(i));
-        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i));
-        sector1Res{i} = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i));
 
-        sector3ResM(i)= cell2mat(sector3Res(i));
-        sector1ResM(i)= cell2mat(sector1Res(i));
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1);
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),h1,sector4Eff(i));
+        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
+        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
 
         I = zeros(1,5);
-        I(1) = sector1Res{i}(1);
-        I(2) = sector3Res{i}(4);
-        I(3) = sector3Res(i,3) + sector1Res(i,3);
-        I(4) = 1./((1./sector3Res(i,1))+(1./(sector3Res(i,4)+sector3Res(i,1)))+(1./(sector3Res(i,3)+sector4Res(i))));
-        I(5) = 1./((1./sector1Res(i,2))+(1./(sector2Res(i)+sector1Res(i,1))));
+        I(1) = sector1BRes(i);
+        I(2) = sector3BRes(i);
+        I(3) = sector3SRes(i) + sector13Res(i);
+        I(4) = 1./((1./sector3SRes(i))+(1./(sector3BRes(i)+sector3ARes(i)))+(1./(sector31Res(i)+sector4Res(i))));
+        I(5) = 1./((1./sector1SRes(i)))+(1./(sector2Res(i)+sector1BRes(i)));
 
         totalRes(i) = ((I(1)+I(2))*(I(3)+I(4)+I(5))+ I(3)*(I(4)+I(5)))/(I(1)*I(4)*(I(3)*I(5))+I(1)*I(2)*(I(3)+I(4)+I(5))+I(2)*I(5)*(I(3)+I(4))+I(3)*I(4)*I(5));
     end
