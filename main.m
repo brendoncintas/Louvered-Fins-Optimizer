@@ -7,16 +7,49 @@
 %% Section 0 clears the script.
 clear
 %% Section 1 sets up all input variables before use based on the parametric study done in the paper.
-customValuesP = "Use custom values? Y/N [N]";
+
+% A variable entryCheck makes sure that the user is entering a valid item.
+% If not, it will not allow the user to proceed.
+entryCheck = 0;
+
+while entryCheck == 0
+customValuesP = "Use custom values? Y/N [N]\n";
 customValues = input(customValuesP, "s");
-if isempty(customValues)
+if customValues == 'Y'
+    fprintf ("Custom values requested.\n\n")
+    entryCheck = 1;
+elseif customValues == 'N'
+    fprintf ("Custom values declined. Calculating using default options.\n\n")
+    entryCheck = 1;
+elseif isempty(customValues)
     customValues = 'N';
+    fprintf ("Field left empty. Calculating using default options.\n\n")
+    entryCheck = 1;
+else
+    fprintf ("Error: invalid entry.\n\n")
+    entryCheck = 0;
+end
 end
 
-outputP = "Print outputs? Y/N [Y]\n";
+entryCheck = 0;
+while entryCheck == 0 
+outputP = "Print outputs? Y/N [N]\n";
 output = input(outputP, "s");
-if isempty(output)
-    output = 'Y';
+
+if output == 'Y'
+    fprintf ("Output requested.\n\n")
+    entryCheck = 1;
+elseif output == 'N'
+    fprintf ("Output request declined. Ignoring output.\n\n")
+    entryCheck = 1;
+elseif isempty(output)
+    output = 'N';
+    fprintf ("Field left empty. Ignoring output.\n\n")
+    entryCheck = 1;
+else
+    fprintf ("Error: invalid entry.\n\n")
+    entryCheck = 0;
+end
 end
 
 if customValues == 'Y'
@@ -59,7 +92,6 @@ if customValues == 'N'
     numBeta2 = [0.25:0.01:0.75];
     b = 10;
     c = 5;
-    h1 = 100;
     T = 300;
 
 end
