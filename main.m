@@ -76,7 +76,7 @@ if customValues == 'Y'
 
 end
 if customValues == 'N'
-    numBiot = 1e-5;
+    numBiot = 1e-6;
     % numBiot = [1e-4, 1e-5, 1e-6];
     numPhi = 0.6;
     % numPhi = [3.3, 2, 1.6];
@@ -86,13 +86,12 @@ if customValues == 'N'
     % numAlpha = [200, 140, 80];
     numGamma = 1.5;
     % numGamma = [1.5, 1.0, 0.5];
-    numBeta1 = 0.75;
-    %numBeta1 = [0.5:0.01:0.95];
-    %numBeta2 = 0.25;
-    numBeta2 = [0.25:0.01:0.75];
+    %numBeta1 = 0.75;
+    numBeta1 = [0.1:0.001:0.95];
+    numBeta2 = 0.25;
+    %numBeta2 = [0.1:0.001:0.45];
     b = 10;
     c = 5;
-    T = 300;
 
 end
 % Derived values
@@ -104,29 +103,29 @@ b2 = numBeta2*b;
 
 %%
 
-for i = 1:length(numBeta2)
+for i = 1:length(numBeta1)
     % The thermal resistance model can be found from an analysis of the network
     % of resistance linking the sectors to one another, and then through the
     % sink and the source. This is dependent on whether there are small bonds
     % (Omega < B2) or large bonds (Omega > B2)
 
-    if numOmega < numBeta2(i)
+    if numOmega < numBeta2
 
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i));
-        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),sector4Eff(i));
-        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
-        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2);
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2,sector4Eff(i));
+        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i));
+        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i));
         
         J = inv(sector1SRes(i))+inv(sector13Res(i)+sector3Res(i))+inv(sector1BRes(i)+sector2Res(i));
         totalRes(i) = sector1BRes(i) + inv(J);
     end
 
-    if numOmega > numBeta2(i)
+    if numOmega > numBeta2
 
-        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i));
-        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1,numBeta2(i),sector4Eff(i));
-        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1);
-        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1);
+        [sector4Eff(i), sector4Res(i)] = sector4Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2);
+        [sector3ARes(i), sector3SRes(i), sector31Res(i), sector3BRes(i), sector3Res(i)] = sector3Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i),numBeta2,sector4Eff(i));
+        sector2Res(i) = sector2Calc(numBiot,numPhi,numOmega,numAlpha,numGamma,numBeta1(i));
+        [sector1BRes(i), sector1SRes(i), sector13Res(i)] = sector1Calc(numBiot,numOmega,numAlpha,numGamma,numBeta1(i));
 
         I = zeros(1,5);
         I(1) = sector1BRes(i);
@@ -157,5 +156,8 @@ if output == 'N'
 end
 
 hold on
-plot(numBeta2,totalRes);
+plot(numBeta1,totalRes);
+title('Louvered Length Ratio \beta_{1} versus Overall Thermal Resistance R^{*}')
+xlabel('Louvered Length Ratio \beta_{1}')
+ylabel('Dimensionless Resistance R^{*}')
 
